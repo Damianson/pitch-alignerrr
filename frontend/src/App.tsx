@@ -9,7 +9,7 @@ import type { ComparisonResult } from './types'
 
 type BackendState = 'checking' | 'online' | 'offline'
 
-const API_URL = 'http://127.0.0.1:5000'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '')
 
 export default function App() {
   const [transcript, setTranscript] = useState(SAMPLE_RESULT.sentence)

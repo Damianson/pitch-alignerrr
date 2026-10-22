@@ -1,0 +1,16 @@
+.git/
+.venv/
+.venv-whisperx/
+__pycache__/
+*.pyc
+.pytest_cache/
+frontend/
+.vscode/
+samples/
+*.png
+*.wav
+Dockerfile
+render.yaml
+README.md
+FRONTEND_DESIGN_SPEC.md
+

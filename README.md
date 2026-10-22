@@ -5,6 +5,7 @@ colorFrom: green
 colorTo: indigo
 sdk: gradio
 app_port: 7860
+suggested_hardware: cpu-basic
 pinned: false
 ---
 

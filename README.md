@@ -197,31 +197,3 @@ npm run dev
 ```
 
 Open the local URL shown in your terminal (typically `http://localhost:5173`), upload a native reference clip and your recording (or click **Load example**), enter the French transcript, and click **Compare**.
-
----
-
-## Deploying to Render
-
-This project includes a complete Render Blueprint (`render.yaml`) and production `Dockerfile`.
-
-### 1-Click Blueprint Deployment (Recommended)
-1. Push your repository to GitHub.
-2. In the [Render Dashboard](https://dashboard.render.com), click **New + > Blueprint**.
-3. Connect your repository. Render will automatically parse `render.yaml` and provision:
-   - **`pitch-alignerrr-api`**: A Docker Web Service with FFmpeg, CPU PyTorch, WhisperX model pre-cached, and Gunicorn.
-   - **`pitch-alignerrr-frontend`**: A Free Static Site for the React + Vite build, with `VITE_API_URL` automatically wired to the backend URL.
-4. Click **Apply**.
-
----
-
-## Deploying to Render
-
-This project includes a complete Render Blueprint (`render.yaml`) and production `Dockerfile`.
-
-### 1-Click Blueprint Deployment (Recommended)
-1. Push your repository to GitHub.
-2. In the [Render Dashboard](https://dashboard.render.com), click **New + > Blueprint**.
-3. Connect your repository. Render will automatically parse `render.yaml` and provision:
-   - **`pitch-alignerrr-api`**: A Docker Web Service with FFmpeg, CPU PyTorch, WhisperX model pre-cached, and Gunicorn.
-   - **`pitch-alignerrr-frontend`**: A Free Static Site for the React + Vite build, with `VITE_API_URL` automatically wired to the backend URL.
-4. Click **Apply**.

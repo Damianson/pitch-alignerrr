@@ -3,7 +3,7 @@ title: PitchAlignerrr API
 emoji: 🎙️
 colorFrom: green
 colorTo: indigo
-sdk: docker
+sdk: gradio
 app_port: 7860
 pinned: false
 ---
@@ -207,6 +207,37 @@ npm run dev
 ```
 
 Open the local URL shown in your terminal (typically `http://localhost:5173`), upload a native reference clip and your recording (or click **Load example**), enter the French transcript, and click **Compare**.
+
+---
+
+## Free Cloud Deployment (Hugging Face Spaces + Render)
+
+This architecture runs 100% on free tiers without memory constraints:
+- **Backend API:** Hosted on **Hugging Face Spaces** (Docker, 2 vCPUs, **16 GB RAM** free tier).
+- **Frontend Workbench:** Hosted on **Render Static Sites** (Free global CDN).
+
+### 1. Deploy Backend on Hugging Face Spaces (16 GB RAM Free)
+1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
+2. Set a **Space name** (e.g. `pitch-alignerrr-api`).
+3. Select **Docker** as the Space SDK (Blank template).
+4. Choose **Public** and keep the free hardware tier (**CPU basic · 2 vCPU · 16 GB RAM**).
+5. Click **Create Space**.
+6. Push your repository to the Hugging Face Space git remote or connect your GitHub repo.
+7. Once built, copy your Space direct URL (e.g. `https://<username>-pitch-alignerrr-api.hf.space`). Verify readiness at:
+   ```bash
+   curl https://<username>-pitch-alignerrr-api.hf.space/api/health
+   ```
+
+### 2. Deploy Frontend on Render (Free Static Site)
+1. In the [Render Dashboard](https://dashboard.render.com), click **New + > Static Site**.
+2. Connect your GitHub repository (`pitch-alignerrr`).
+3. Set the build parameters:
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm install && npm run build`
+   - **Publish Directory:** `dist`
+4. Under **Environment Variables**, add:
+   - `VITE_API_URL` = `https://<username>-pitch-alignerrr-api.hf.space` (your Hugging Face Space URL)
+5. Click **Create Static Site**.
 
 ---
 

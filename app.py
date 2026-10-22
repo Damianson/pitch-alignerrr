@@ -34,6 +34,16 @@ def _save_and_ensure_wav(file_storage, dest_dir: Path, prefix: str) -> Path:
     return saved_path
 
 
+@app.get("/")
+def index():
+    return jsonify({
+        "service": "PitchAlignerrr Acoustic Phonetics API",
+        "status": "online",
+        "health": "/api/health",
+        "compare": "/api/compare"
+    })
+
+
 @app.get("/api/health")
 def health():
     return jsonify({"status": "ok"})
@@ -85,4 +95,6 @@ def compare():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    import os
+    port = int(os.environ.get("PORT", 7860 if os.environ.get("SPACE_ID") else 5000))
+    app.run(host="0.0.0.0", port=port)

@@ -46,15 +46,15 @@ echo "⚡ Using Cloudflared: $CLOUDFLARED_BIN"
 
 # 3. Check / Start local backend
 BACKEND_PID=""
-if curl -s "http://127.0.0.1:5000/api/health" &> /dev/null; then
+if curl -s "http://127.0.0.1:5000/api/health" | grep -q "ok"; then
     echo "✅ Local Flask API is already active on http://127.0.0.1:5000"
 else
     echo "🚀 Starting Flask API on port 5000..."
-    PORT=5000 "$PYTHON_BIN" app.py > /tmp/pitchalignerrr_backend.log 2>&1 &
+    PYTHONUNBUFFERED=1 PORT=5000 "$PYTHON_BIN" app.py > /tmp/pitchalignerrr_backend.log 2>&1 &
     BACKEND_PID=$!
 
     echo -n "⏳ Waiting for API to become ready..."
-    for i in {1..30}; do
+    for i in {1..45}; do
         if curl -s "http://127.0.0.1:5000/api/health" | grep -q "ok"; then
             echo " Ready!"
             break
@@ -64,6 +64,7 @@ else
     done
 
     if ! curl -s "http://127.0.0.1:5000/api/health" | grep -q "ok"; then
+        echo ""
         echo "❌ Backend failed to start. Logs:"
         cat /tmp/pitchalignerrr_backend.log
         kill $BACKEND_PID 2>/dev/null || true

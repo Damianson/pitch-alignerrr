@@ -7,6 +7,7 @@ DEFAULT_TIME_STEP = 0.01      # 10 ms per frame
 DEFAULT_PITCH_FLOOR = 75.0    # Minimum human speech pitch in Hz
 DEFAULT_PITCH_CEILING = 500.0 # Maximum human speech pitch in Hz
 MIN_VOICED_RATIO = 0.15       # Warn if fewer than 15% of frames have a detectable pitch
+MAX_SEMITONE_DEVIATION = 12.0  # Reject harmonic/octave-jump outliers (>1 octave from median)
 
 
 def extract_pitch(
@@ -71,6 +72,7 @@ def normalize_pitch(frames: list[dict]) -> dict:
     median_hz = float(np.median(voiced_values))
     normalized_frames = []
 
+    outlier_count = 0
     for frame in frames:
         pitch_hz = frame["pitch_hz"]
 
@@ -81,12 +83,19 @@ def normalize_pitch(frames: list[dict]) -> dict:
                 float(12.0 * np.log2(pitch_hz / median_hz)),
                 3,
             )
+            if abs(semitone) > MAX_SEMITONE_DEVIATION:
+                pitch_hz = None
+                semitone = None
+                outlier_count += 1
 
         normalized_frames.append({
             "time": frame["time"],
             "pitch_hz": pitch_hz,
             "semitone_offset": semitone,
         })
+
+    if outlier_count > 0:
+        warnings.append(f"Filtered {outlier_count} implausible pitch outlier frame(s).")
     
 
 

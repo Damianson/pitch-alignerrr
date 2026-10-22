@@ -4,8 +4,12 @@ __pycache__/
 .pytest_cache/
 *.wav
 !samples/**/*.wav
+!frontend/public/examples/**/*.wav
 pitch_comparison.png
 .venv-whisperx/
-
 frontend/node_modules/
 frontend/dist/
+.vscode/
+FRONTEND_DESIGN_SPEC.md
+Screenshot 2026-10-20 195522.png
+Screenshot 2026-10-20 195741.png

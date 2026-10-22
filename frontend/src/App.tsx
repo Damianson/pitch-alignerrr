@@ -9,9 +9,19 @@ import type { ComparisonResult } from './types'
 
 type BackendState = 'checking' | 'online' | 'offline'
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '')
+const DEFAULT_API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '')
 
 export default function App() {
+  const [apiUrl, setApiUrl] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pitchalignerrr_api_url')
+      if (stored) return stored
+    }
+    return DEFAULT_API_URL
+  })
+  const [isConfiguringEndpoint, setIsConfiguringEndpoint] = useState(false)
+  const [customUrlInput, setCustomUrlInput] = useState(apiUrl)
+
   const [transcript, setTranscript] = useState(SAMPLE_RESULT.sentence)
   const [referenceFile, setReferenceFile] = useState<File | null>(null)
   const [learnerFile, setLearnerFile] = useState<File | null>(null)
@@ -52,7 +62,9 @@ export default function App() {
 
     const checkBackend = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/health`)
+        const response = await fetch(`${apiUrl}/api/health`, {
+          headers: { 'Bypass-Tunnel-Reminder': 'true' },
+        })
         if (active) setBackendState(response.ok ? 'online' : 'offline')
       } catch {
         if (active) setBackendState('offline')
@@ -60,12 +72,12 @@ export default function App() {
     }
 
     void checkBackend()
-    const intervalId = window.setInterval(checkBackend, 15000)
+    const intervalId = window.setInterval(checkBackend, 10000)
     return () => {
       active = false
       window.clearInterval(intervalId)
     }
-  }, [])
+  }, [apiUrl])
 
   const runComparison = async () => {
     setErrorMessage(null)
@@ -85,8 +97,11 @@ export default function App() {
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${API_URL}/api/compare`, {
+      const response = await fetch(`${apiUrl}/api/compare`, {
         method: 'POST',
+        headers: {
+          'Bypass-Tunnel-Reminder': 'true',
+        },
         body,
       })
       const text = await response.text()
@@ -100,7 +115,7 @@ export default function App() {
       if (!response.ok) {
         if (response.status === 502 || response.status === 504) {
           throw new Error(
-            `Backend service unavailable (HTTP ${response.status}). The server likely exceeded Render's 512MB RAM free-tier limit while running the WhisperX neural model, or timed out. Consider upgrading the backend instance to Starter (2GB RAM).`
+            `Backend service unavailable (HTTP ${response.status}). If using a local tunnel, ensure your local backend server is running and the tunnel is active.`
           )
         }
         throw new Error(
@@ -117,7 +132,7 @@ export default function App() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : 'Unable to reach the comparison service.',
+          : `Unable to reach the comparison service at ${apiUrl}.`,
       )
     } finally {
       setIsLoading(false)
@@ -186,7 +201,89 @@ export default function App() {
   return (
     <div className="app-shell" data-service-state={backendState}>
       <header className="masthead">
-        <div className="brand-name">PitchAlignerrr</div>
+        <div className="masthead-left">
+          <div className="brand-name">PitchAlignerrr</div>
+          <span className="brand-subtitle">French Prosody Workbench</span>
+        </div>
+
+        <div className="masthead-right">
+          <div className="endpoint-widget">
+            <button
+              type="button"
+              className="endpoint-status-pill"
+              onClick={() => {
+                setCustomUrlInput(apiUrl)
+                setIsConfiguringEndpoint((prev) => !prev)
+              }}
+              title="Click to view or edit backend / tunnel endpoint"
+            >
+              <span className={`status-dot status-dot-${backendState}`} />
+              <span className="status-label">
+                {backendState === 'online' ? 'Backend Connected' : backendState === 'checking' ? 'Connecting...' : 'Backend Offline'}
+              </span>
+              <span className="endpoint-host-preview">
+                {(() => {
+                  try {
+                    const parsed = new URL(apiUrl)
+                    return parsed.hostname + (parsed.port ? `:${parsed.port}` : '')
+                  } catch {
+                    return apiUrl
+                  }
+                })()}
+              </span>
+            </button>
+
+            {isConfiguringEndpoint && (
+              <div className="endpoint-popover">
+                <label className="endpoint-input-label">
+                  <span>Backend / Tunnel URL</span>
+                  <input
+                    type="text"
+                    value={customUrlInput}
+                    onChange={(e) => setCustomUrlInput(e.target.value)}
+                    placeholder="e.g. https://...trycloudflare.com or http://127.0.0.1:5000"
+                    autoFocus
+                  />
+                </label>
+                <div className="endpoint-actions">
+                  <button
+                    type="button"
+                    className="endpoint-save-button"
+                    onClick={() => {
+                      const cleaned = customUrlInput.trim().replace(/\/$/, '')
+                      if (cleaned) {
+                        setApiUrl(cleaned)
+                        localStorage.setItem('pitchalignerrr_api_url', cleaned)
+                      }
+                      setIsConfiguringEndpoint(false)
+                    }}
+                  >
+                    Apply
+                  </button>
+                  <button
+                    type="button"
+                    className="endpoint-reset-button"
+                    onClick={() => {
+                      setCustomUrlInput(DEFAULT_API_URL)
+                      setApiUrl(DEFAULT_API_URL)
+                      localStorage.removeItem('pitchalignerrr_api_url')
+                      setIsConfiguringEndpoint(false)
+                    }}
+                  >
+                    Reset Default
+                  </button>
+                  <button
+                    type="button"
+                    className="endpoint-cancel-button"
+                    onClick={() => setIsConfiguringEndpoint(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       <main>

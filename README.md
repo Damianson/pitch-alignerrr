@@ -211,51 +211,51 @@ Open the local URL shown in your terminal (typically `http://localhost:5173`), u
 
 ---
 
-## Free Cloud Deployment (Hugging Face Spaces + Render)
+## Running with Local Tunnel (Recommended $0 Setup)
 
-This architecture runs 100% on free tiers without memory constraints:
-- **Backend API:** Hosted on **Hugging Face Spaces** (Docker, 2 vCPUs, **16 GB RAM** free tier).
-- **Frontend Workbench:** Hosted on **Render Static Sites** (Free global CDN).
+Because forced speech alignment and wav2vec2 neural models require ~1 GB of RAM on CPU, deploying to cloud free-tiers with 512 MB memory ceilings (e.g. Render Web Services) triggers Out-Of-Memory termination (`SIGKILL 137`).
 
-### 1. Deploy Backend on Hugging Face Spaces (16 GB RAM Free)
-1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-2. Set a **Space name** (e.g. `pitch-alignerrr-api`).
-3. Select **Docker** as the Space SDK (Blank template).
-4. Choose **Public** and keep the free hardware tier (**CPU basic · 2 vCPU · 16 GB RAM**).
-5. Click **Create Space**.
-6. Push your repository to the Hugging Face Space git remote or connect your GitHub repo.
-7. Once built, copy your Space direct URL (e.g. `https://<username>-pitch-alignerrr-api.hf.space`). Verify readiness at:
-   ```bash
-   curl https://<username>-pitch-alignerrr-api.hf.space/api/health
+The cleanest zero-cost way to run PitchAlignerrr is to execute the backend locally (with access to your PC's CPU and RAM) and expose it to the live frontend via an encrypted **Cloudflare Quick Tunnel**:
+
+### 1. Launch Backend + Tunnel in One Command
+Run the launcher from your repository root (inside WSL/Linux):
+```bash
+./start_tunnel.sh
+```
+*(On Windows PowerShell, you can simply run: `.\start_tunnel.ps1`)*
+
+The script automatically:
+1. Detects your Python virtual environment (`.venv-whisperx` or `.venv`).
+2. Starts the Flask API on `http://127.0.0.1:5000` and verifies `/api/health`.
+3. Establishes a free Cloudflare Quick Tunnel and outputs a public HTTPS link:
+   ```text
+   +--------------------------------------------------------------------------------------------+
+   |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+   |  https://example-words-xyz.trycloudflare.com                                               |
+   +--------------------------------------------------------------------------------------------+
    ```
 
-### 2. Deploy Frontend on Render (Free Static Site)
-1. In the [Render Dashboard](https://dashboard.render.com), click **New + > Static Site**.
-2. Connect your GitHub repository (`pitch-alignerrr`).
-3. Set the build parameters:
-   - **Root Directory:** `frontend`
-   - **Build Command:** `npm install && npm run build`
-   - **Publish Directory:** `dist`
-4. Under **Environment Variables**, add:
-   - `VITE_API_URL` = `https://<username>-pitch-alignerrr-api.hf.space` (your Hugging Face Space URL)
-5. Click **Create Static Site**.
+### 2. Connect Your Live Frontend
+1. Open your deployed frontend (e.g. `https://pitch-alignerrr-frontend.onrender.com` or local `http://localhost:5173`).
+2. Click the **Backend Offline / Connected** badge in the top-right corner of the masthead.
+3. Paste your `https://....trycloudflare.com` URL into the input field and click **Apply**.
+4. The workbench will verify the connection and turn green (`Backend Connected`). The URL is remembered across page reloads via `localStorage`.
 
 ---
 
-## Free Cloud Deployment (Hugging Face Spaces + Render)
+## Alternative Cloud Deployment (Hugging Face Spaces + Render)
 
-This architecture runs 100% on free tiers without memory constraints:
-- **Backend API:** Hosted on **Hugging Face Spaces** (Docker, 2 vCPUs, **16 GB RAM** free tier).
+If you prefer a 24/7 cloud backend without keeping your computer running:
+- **Backend API:** Hosted on **Hugging Face Spaces** (Docker or Gradio SDK with 16 GB RAM free tier).
 - **Frontend Workbench:** Hosted on **Render Static Sites** (Free global CDN).
 
 ### 1. Deploy Backend on Hugging Face Spaces (16 GB RAM Free)
 1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
 2. Set a **Space name** (e.g. `pitch-alignerrr-api`).
-3. Select **Docker** as the Space SDK (Blank template).
-4. Choose **Public** and keep the free hardware tier (**CPU basic · 2 vCPU · 16 GB RAM**).
-5. Click **Create Space**.
-6. Push your repository to the Hugging Face Space git remote or connect your GitHub repo.
-7. Once built, copy your Space direct URL (e.g. `https://<username>-pitch-alignerrr-api.hf.space`). Verify readiness at:
+3. Select **Docker** or **Gradio** SDK.
+4. Choose **Public** and select the free hardware tier (**CPU basic · 2 vCPU · 16 GB RAM**).
+5. Click **Create Space** and push the repository.
+6. Once built, copy your Space direct URL (e.g. `https://<username>-pitch-alignerrr-api.hf.space`). Verify readiness at:
    ```bash
    curl https://<username>-pitch-alignerrr-api.hf.space/api/health
    ```
@@ -268,5 +268,5 @@ This architecture runs 100% on free tiers without memory constraints:
    - **Build Command:** `npm install && npm run build`
    - **Publish Directory:** `dist`
 4. Under **Environment Variables**, add:
-   - `VITE_API_URL` = `https://<username>-pitch-alignerrr-api.hf.space` (your Hugging Face Space URL)
+   - `VITE_API_URL` = `https://<username>-pitch-alignerrr-api.hf.space` (or your tunnel URL)
 5. Click **Create Static Site**.

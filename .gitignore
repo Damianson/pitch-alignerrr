@@ -6,3 +6,6 @@ __pycache__/
 !samples/**/*.wav
 pitch_comparison.png
 .venv-whisperx/
+
+frontend/node_modules/
+frontend/dist/

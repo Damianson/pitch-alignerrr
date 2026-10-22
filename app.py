@@ -8,6 +8,23 @@ from werkzeug.utils import secure_filename
 from src.audio import convert_to_wav
 from src.comparer import compare_recordings
 
+try:
+    import spaces
+except ImportError:
+    class spaces:
+        @staticmethod
+        def GPU(func=None, duration=60):
+            if callable(func):
+                return func
+            def decorator(f):
+                return f
+            return decorator
+
+
+@spaces.GPU
+def _run_comparison_task(ref_wav, lrn_wav, transcript):
+    return compare_recordings(ref_wav, lrn_wav, transcript)
+
 
 ALLOWED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".ogg", ".flac", ".webm"}
 MAX_UPLOAD_MB = 15
@@ -80,7 +97,7 @@ def compare():
         ref_wav = _save_and_ensure_wav(ref_file, tmp_dir, "reference")
         lrn_wav = _save_and_ensure_wav(lrn_file, tmp_dir, "learner")
         
-        result = compare_recordings(ref_wav, lrn_wav, transcript)
+        result = _run_comparison_task(ref_wav, lrn_wav, transcript)
         return jsonify(result), 200
 
 

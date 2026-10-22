@@ -22,3 +22,4 @@ git push space main --force
 
 rm -rf "$DEPLOY_DIR"
 echo "==> Successfully deployed to Hugging Face Space!"
+

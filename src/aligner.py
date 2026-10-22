@@ -1,5 +1,7 @@
 from pathlib import Path
+import gc
 import soundfile as sf
+import torch
 import whisperx
 
 
@@ -54,14 +56,16 @@ def align_words(
         }
     ]
 
-    aligned = whisperx.align(
-        transcript_segments,
-        model_a,
-        metadata,
-        audio,
-        device,
-        return_char_alignments=False,
-    )
+    with torch.inference_mode():
+        aligned = whisperx.align(
+            transcript_segments,
+            model_a,
+            metadata,
+            audio,
+            device,
+            return_char_alignments=False,
+        )
+    gc.collect()
     raw_words = aligned.get("word_segments", [])
 
 

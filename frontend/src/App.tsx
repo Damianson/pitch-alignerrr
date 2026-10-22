@@ -89,10 +89,29 @@ export default function App() {
         method: 'POST',
         body,
       })
-      const payload = await response.json()
-      if (!response.ok) {
-        throw new Error(payload.error ?? `Comparison failed (${response.status}).`)
+      const text = await response.text()
+      let payload: any = null
+      try {
+        payload = text ? JSON.parse(text) : null
+      } catch {
+        // Non-JSON response (e.g. 502/504 Bad Gateway from cloud proxy)
       }
+
+      if (!response.ok) {
+        if (response.status === 502 || response.status === 504) {
+          throw new Error(
+            `Backend service unavailable (HTTP ${response.status}). The server likely exceeded Render's 512MB RAM free-tier limit while running the WhisperX neural model, or timed out. Consider upgrading the backend instance to Starter (2GB RAM).`
+          )
+        }
+        throw new Error(
+          payload?.error ?? text ?? `Comparison failed (${response.status}).`
+        )
+      }
+
+      if (!payload) {
+        throw new Error('Received an empty response from the server.')
+      }
+
       setResult(payload as ComparisonResult)
     } catch (error) {
       setErrorMessage(

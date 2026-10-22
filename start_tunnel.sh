@@ -54,7 +54,7 @@ else
     BACKEND_PID=$!
 
     echo -n "⏳ Waiting for API to become ready..."
-    for i in {1..45}; do
+    for i in {1..60}; do
         if curl -s "http://127.0.0.1:5000/api/health" | grep -q "ok"; then
             echo " Ready!"
             break

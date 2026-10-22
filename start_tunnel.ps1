@@ -12,3 +12,4 @@ if (Get-Command wsl -ErrorAction SilentlyContinue) {
 } else {
     Write-Host "WSL not found. Please run ./start_tunnel.sh in your Linux terminal." -ForegroundColor Red
 }
+

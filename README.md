@@ -1,14 +1,3 @@
----
-title: PitchAlignerrr API
-emoji: 🎙️
-colorFrom: green
-colorTo: indigo
-sdk: gradio
-app_port: 7860
-suggested_hardware: cpu-basic
-pinned: false
----
-
 # PitchAlignerrr — French Prosody & Intonation Diagnostic Workbench
 
 PitchAlignerrr is a full-stack acoustic phonetics and forced-alignment tool designed to help language learners practice French sentence intonation, rhythm, and cadence. Given a written French transcript, a native reference recording, and a learner recording, the system extracts fundamental frequency ($F_0$) contours, normalizes speaker vocal ranges into relative semitones, aligns word boundaries via WhisperX, and generates actionable vocal coaching feedback alongside word-aligned pitch and timing visualizations.
@@ -211,7 +200,7 @@ Open the local URL shown in your terminal (typically `http://localhost:5173`), u
 
 ---
 
-## Running with Local Tunnel (Recommended $0 Setup)
+## Running with Local Tunnel (Recommended Setup)
 
 Because forced speech alignment and wav2vec2 neural models require ~1 GB of RAM on CPU, deploying to cloud free-tiers with 512 MB memory ceilings (e.g. Render Web Services) triggers Out-Of-Memory termination (`SIGKILL 137`).
 
@@ -240,33 +229,3 @@ The script automatically:
 2. Click the **Backend Offline / Connected** badge in the top-right corner of the masthead.
 3. Paste your `https://....trycloudflare.com` URL into the input field and click **Apply**.
 4. The workbench will verify the connection and turn green (`Backend Connected`). The URL is remembered across page reloads via `localStorage`.
-
----
-
-## Alternative Cloud Deployment (Hugging Face Spaces + Render)
-
-If you prefer a 24/7 cloud backend without keeping your computer running:
-- **Backend API:** Hosted on **Hugging Face Spaces** (Docker or Gradio SDK with 16 GB RAM free tier).
-- **Frontend Workbench:** Hosted on **Render Static Sites** (Free global CDN).
-
-### 1. Deploy Backend on Hugging Face Spaces (16 GB RAM Free)
-1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-2. Set a **Space name** (e.g. `pitch-alignerrr-api`).
-3. Select **Docker** or **Gradio** SDK.
-4. Choose **Public** and select the free hardware tier (**CPU basic · 2 vCPU · 16 GB RAM**).
-5. Click **Create Space** and push the repository.
-6. Once built, copy your Space direct URL (e.g. `https://<username>-pitch-alignerrr-api.hf.space`). Verify readiness at:
-   ```bash
-   curl https://<username>-pitch-alignerrr-api.hf.space/api/health
-   ```
-
-### 2. Deploy Frontend on Render (Free Static Site)
-1. In the [Render Dashboard](https://dashboard.render.com), click **New + > Static Site**.
-2. Connect your GitHub repository (`pitch-alignerrr`).
-3. Set the build parameters:
-   - **Root Directory:** `frontend`
-   - **Build Command:** `npm install && npm run build`
-   - **Publish Directory:** `dist`
-4. Under **Environment Variables**, add:
-   - `VITE_API_URL` = `https://<username>-pitch-alignerrr-api.hf.space` (or your tunnel URL)
-5. Click **Create Static Site**.

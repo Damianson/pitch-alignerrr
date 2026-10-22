@@ -84,12 +84,6 @@ textarea:focus-visible,
   font-weight: 600;
 }
 
-.brand-subtitle {
-  color: var(--muted-ink);
-  font-size: 13px;
-  font-weight: 500;
-}
-
 .masthead-right {
   display: flex;
   align-items: center;

@@ -203,7 +203,6 @@ export default function App() {
       <header className="masthead">
         <div className="masthead-left">
           <div className="brand-name">PitchAlignerrr</div>
-          <span className="brand-subtitle">French Prosody Workbench</span>
         </div>
 
         <div className="masthead-right">
